@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Interactive Guide to Spam Email Detection AI Mini Project Work
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The SPA is designed as a guided, linear journey through the machine learning project lifecycle, mirroring the 10 steps in the source report. This structure was chosen for its pedagogical clarity, making it ideal for a student new to AI. Navigation is handled by a persistent sidebar, allowing users to jump to any step. Key interactions include toggling content sections and viewing dynamic charts to understand concepts like class imbalance and feature importance. This task-oriented flow directly supports the user's goal of implementing their project step-by-step. -->
+    <!-- Visualization & Content Choices: 
+        - Problem Definition: Goal: Inform. Method: Styled text blocks. Interaction: None. Justification: Clearly presents the foundational concepts.
+        - Data Acquisition: Goal: Inform. Method: Comparison table (HTML/Tailwind). Interaction: None. Justification: Allows easy comparison of potential datasets.
+        - Data Distribution: Goal: Inform/Compare. Method: Donut Chart (Chart.js). Interaction: Hover tooltips. Justification: Visually and intuitively demonstrates the critical concept of class imbalance.
+        - EDA (Word Frequency): Goal: Compare. Method: Two dynamic Bar Charts (Chart.js). Interaction: None. Justification: Provides a clear, side-by-side comparison of the most frequent words in Ham vs. Spam, highlighting key linguistic differences.
+        - Process Flow (e.g., Preprocessing): Goal: Organize. Method: Numbered list with icons (HTML/Tailwind). Interaction: None. Justification: Breaks down multi-step processes into easily digestible steps.
+        - Model Evaluation: Goal: Inform. Method: Styled metric cards (HTML/Tailwind). Interaction: Hover for definitions. Justification: Presents key performance indicators in a clear, dashboard-like format.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #fdfbf8; /* Warm off-white */
+        color: #4a4a4a;
+      }
+      .sidebar-link {
+        transition: all 0.2s ease-in-out;
+        border-left: 3px solid transparent;
+      }
+      .sidebar-link.active {
+        background-color: #f3efea; /* Light beige */
+        color: #c06c46; /* Muted orange accent */
+        border-left-color: #c06c46;
+      }
+      .sidebar-link:hover {
+        background-color: #f3efea;
+        border-left-color: #e2c7b9; /* Lighter accent */
+      }
+      .main-content {
+        transition: opacity 0.5s ease-in-out;
+      }
+      .card {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+          0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f3efea;
+      }
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 450px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 300px;
+        max-height: 350px;
+      }
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 350px;
+        }
+      }
+      .step-icon {
+        background-color: #f3efea;
+        color: #c06c46;
+      }
+      .metric-card {
+        border-left: 4px solid #c06c46;
+      }
+      .tooltip {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+      }
+      .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 220px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 10px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -110px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.875rem;
+        font-weight: 400;
+      }
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div class="flex h-screen bg-gray-100">
+      <!-- Sidebar -->
+      <div
+        class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200"
+      >
+        <div class="flex items-center justify-center h-16 border-b">
+          <h1 class="text-xl font-bold text-[#C06C46]">
+            AI Spam Detection Mini Project
+          </h1>
+        </div>
+        <div class="flex-1 overflow-y-auto">
+          <nav id="sidebar-nav" class="flex-1 px-2 py-4 space-y-1">
+            <!-- Links will be dynamically generated here -->
+          </nav>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <header
+          class="flex justify-between items-center p-4 bg-white border-b md:hidden"
+        >
+          <h1 class="text-xl font-bold text-[#C06C46]">Spam Detection Guide</h1>
+          <button id="menu-button" class="text-gray-500 focus:outline-none">
+            <svg
+              class="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 6H20M4 12H20M4 18H20"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+          </button>
+        </header>
+        <main
+          id="main-content-area"
+          class="flex-1 overflow-x-hidden overflow-y-auto bg-[#FDFBF8] p-4 sm:p-6 lg:p-8"
+        >
+          <!-- Sections will be dynamically generated here -->
+        </main>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden fixed inset-0 flex z-40">
+      <div class="fixed inset-0 bg-black opacity-50"></div>
+      <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
+        <div class="absolute top-0 right-0 -mr-12 pt-2">
+          <button
+            id="close-menu-button"
+            class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+          >
+            <span class="sr-only">Close sidebar</span>
+            <svg
+              class="h-6 w-6 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+          <div class="flex-shrink-0 flex items-center px-4">
+            <h1 class="text-xl font-bold text-[#C06C46]">
+              Spam Detection Guide
+            </h1>
+          </div>
+          <nav id="mobile-sidebar-nav" class="mt-5 px-2 space-y-1">
+            <!-- Mobile links will be dynamically generated here -->
+          </nav>
+        </div>
+      </div>
+      <div class="flex-shrink-0 w-14"></div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const sectionsData = [
+          {
+            id: "problem-definition",
+            title: "1. Problem Definition",
+            icon: "🎯",
+          },
+          { id: "data-acquisition", title: "2. Data Acquisition", icon: "📊" },
+          { id: "data-cleaning", title: "3. Data Preprocessing", icon: "🧹" },
+          { id: "eda", title: "4. Exploratory Analysis", icon: "🔍" },
+          {
+            id: "feature-engineering",
+            title: "5. Feature Engineering",
+            icon: "🛠️",
+          },
+          { id: "model-building", title: "6. Model Building", icon: "🤖" },
+          { id: "model-evaluation", title: "7. Model Evaluation", icon: "📈" },
+          {
+            id: "results-interpretation",
+            title: "8. Results Interpretation",
+            icon: "💡",
+          },
+          { id: "deployment", title: "9. Deployment", icon: "🚀" },
+          { id: "documentation", title: "10. Documentation", icon: "📝" },
+        ];
+
+        const mainContentArea = document.getElementById("main-content-area");
+        const sidebarNav = document.getElementById("sidebar-nav");
+        const mobileSidebarNav = document.getElementById("mobile-sidebar-nav");
+
+        let chartInstances = {};
+
+        const contentHTML = {
+          "problem-definition": `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 1. Problem Definition & Objective</h2>
+                        <p class="mb-4 text-gray-600">This first step is about clearly understanding and defining the problem you are trying to solve. For this project, the core challenge is the overwhelming volume of unsolicited and often malicious emails, known as spam. Your objective is to build an AI system that can automatically and accurately distinguish between legitimate emails (ham) and spam.</p>
+                        <div class="grid md:grid-cols-2 gap-6 mt-6">
+                            <div class="bg-[#F3EFEA] p-4 rounded-lg">
+                                <h3 class="font-semibold text-lg text-[#C06C46] mb-2">Key Goal</h3>
+                                <p class="text-gray-700">To construct a reliable machine learning model that classifies emails as 'spam' or 'ham', providing a hands-on, end-to-end AI development experience.</p>
+                            </div>
+                            <div class="bg-[#F3EFEA] p-4 rounded-lg">
+                                <h3 class="font-semibold text-lg text-[#C06C46] mb-2">AI Task Type</h3>
+                                <p class="text-gray-700">This project is a <strong class="font-bold">Binary Classification</strong> task. Every email will be assigned to one of two categories: 'spam' (positive class) or 'ham' (negative class).</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 border-t pt-6">
+                            <h3 class="font-semibold text-lg text-gray-800 mb-2">Why This Matters: The Cost of Errors</h3>
+                            <p class="text-gray-600">Understanding the consequences of mistakes is crucial. A <strong class="text-red-600">False Positive</strong> (a real email flagged as spam) can cause you to miss critical information. A <strong class="text-orange-600">False Negative</strong> (a spam email delivered to your inbox) is annoying but often less damaging. This balance will guide how we evaluate our model's success.</p>
+                        </div>
+                    </div>
+                `,
+          "data-acquisition": `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">📊 2. Data Acquisition</h2>
+                        <p class="mb-6 text-gray-600">Every AI project starts with data. For your first project, it's best to use a well-known, publicly available dataset. This saves you from the difficult task of collecting and labeling data from scratch. We evaluated several options and selected the most suitable one for a beginner.</p>
+                        
+                        <h3 class="font-semibold text-lg text-gray-800 mb-4">Recommended Dataset: SMS Spam Collection</h3>
+                        <div class="bg-[#F3EFEA] p-4 rounded-lg mb-6">
+                            <p class="text-gray-700">The <strong class="text-[#C06C46]">SMS Spam Collection Dataset</strong> from Kaggle is the ideal starting point. While it contains SMS messages, the text classification principles are identical to email spam. Its simple format allows you to focus on core AI concepts rather than complex data cleaning.</p>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="py-2 px-4 bg-gray-100 font-semibold text-sm text-gray-600 border-b">Characteristic</th>
+                                        <th class="py-2 px-4 bg-gray-100 font-semibold text-sm text-gray-600 border-b">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white">
+                                    <tr><td class="py-2 px-4 border-b">Dataset Name</td><td class="py-2 px-4 border-b">SMS Spam Collection Dataset</td></tr>
+                                    <tr><td class="py-2 px-4 border-b">Source</td><td class="py-2 px-4 border-b">Kaggle</td></tr>
+                                    <tr><td class="py-2 px-4 border-b">Total Messages</td><td class="py-2 px-4 border-b">5,574</td></tr>
+                                    <tr><td class="py-2 px-4 border-b">Ham (Legit)</td><td class="py-2 px-4 border-b">4,825 (86.6%)</td></tr>
+                                    <tr><td class="py-2 px-4 border-b">Spam</td><td class="py-2 px-4 border-b">747 (13.4%)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                         <div class="mt-6 border-t pt-6">
+                            <h3 class="font-semibold text-lg text-gray-800 mb-2">Understanding Class Imbalance</h3>
+                            <p class="text-gray-600 mb-4">Notice that there are far more 'ham' messages than 'spam' messages. This is called <strong class="text-[#C06C46]">class imbalance</strong>. It's a critical observation because if a model simply guessed 'ham' every time, it would be 86.6% accurate but completely useless! This is why we need more sophisticated evaluation metrics, which we'll cover later.</p>
+                             <div class="chart-container">
+                                <canvas id="classDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                `,
+          "data-cleaning": `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">🧹 3. Data Cleaning and Preprocessing</h2>
+                        <p class="mb-6 text-gray-600">Raw text data is messy and can't be used by AI models directly. We need to clean and standardize it through a series of preprocessing steps. This phase is foundational for any text-based AI project, ensuring our model receives high-quality, consistent input.</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full step-icon flex items-center justify-center font-bold">1</div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-lg">Initial Loading & Inspection</h4>
+                                    <p class="text-gray-600">Load the data (CSV file) and remove any irrelevant columns. Check for and remove any duplicate messages.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full step-icon flex items-center justify-center font-bold">2</div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-lg">Text Normalization</h4>
+                                    <p class="text-gray-600">Convert all text to lowercase. This ensures words like "Free" and "free" are treated as the same token.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full step-icon flex items-center justify-center font-bold">3</div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-lg">Remove Noise</h4>
+                                    <p class="text-gray-600">Remove all punctuation marks and "stopwords" (common words like 'the', 'a', 'in' that add little meaning).</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full step-icon flex items-center justify-center font-bold">4</div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-lg">Tokenization</h4>
+                                    <p class="text-gray-600">Break down the cleaned sentences into individual words or "tokens".</p>
+                                </div>
+                            </div>
+                             <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full step-icon flex items-center justify-center font-bold">5</div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-lg">Encode Target Variable</h4>
+                                    <p class="text-gray-600">Convert the text labels ('ham', 'spam') into numbers (e.g., ham=0, spam=1) that the model can understand.</p>
+                                </div>
+                            </div>
+                             <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full step-icon flex items-center justify-center font-bold">6</div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-lg">Split the Dataset</h4>
+                                    <p class="text-gray-600">Divide your data into a <strong class="text-[#C06C46]">training set</strong> (typically 80%) and a <strong class="text-[#C06C46]">testing set</strong> (20%). The model learns from the training set, and we evaluate its performance on the unseen testing set to ensure it can generalize to new data.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+          eda: `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">🔍 4. Exploratory Data Analysis (EDA)</h2>
+                        <p class="mb-6 text-gray-600">Before building the model, we explore the data to uncover patterns and insights. For text, this often means looking at what makes the two classes (ham and spam) different linguistically. This helps validate our approach and can even suggest new features to create.</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800 mb-2 text-center">Top Words in Ham Messages</h3>
+                                <div class="chart-container h-96">
+                                    <canvas id="hamWordsChart"></canvas>
+                                </div>
+                                <p class="text-center text-sm text-gray-500 mt-2">These are common, conversational words.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800 mb-2 text-center">Top Words in Spam Messages</h3>
+                                <div class="chart-container h-96">
+                                    <canvas id="spamWordsChart"></canvas>
+                                </div>
+                                <p class="text-center text-sm text-gray-500 mt-2">Notice words related to urgency and offers.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 border-t pt-6">
+                            <h3 class="font-semibold text-lg text-gray-800 mb-2">Key Finding: Message Length</h3>
+                            <p class="text-gray-600">Another key finding from EDA is that spam messages tend to be longer than ham messages. Spammers often need more words to convey their deceptive offers. This simple insight is powerful: we can use <strong class="text-[#C06C46]">message length</strong> as an additional clue (a feature) for our model.</p>
+                        </div>
+                    </div>
+                `,
+          "feature-engineering": `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">🛠️ 5. Feature Engineering</h2>
+                        <p class="mb-6 text-gray-600">This is the process of converting our preprocessed text into a numerical format (vectors) that machine learning models can understand. We're essentially turning words into numbers while retaining their meaning and importance.</p>
+                        
+                        <div class="bg-white rounded-lg p-6 border border-gray-200">
+                             <h3 class="font-semibold text-lg text-[#C06C46] mb-2">Primary Technique: TF-IDF</h3>
+                             <p class="text-gray-600 mb-4">We will use <strong class="font-bold">Term Frequency-Inverse Document Frequency (TF-IDF)</strong>. This technique is more intelligent than simply counting words. It calculates a score for each word that reflects how important it is to a message within the context of the entire dataset.</p>
+                             <ul class="space-y-2 list-disc list-inside text-gray-600">
+                                <li><strong class="font-semibold">High Score:</strong> The word is frequent in a specific message but rare in other messages (e.g., "guaranteed," "prize"). This makes it a strong indicator of spam.</li>
+                                <li><strong class="font-semibold">Low Score:</strong> The word is common across many messages (e.g., "to," "and") and therefore less informative.</li>
+                             </ul>
+                        </div>
+
+                        <div class="mt-6 border-t pt-6">
+                             <h3 class="font-semibold text-lg text-gray-800 mb-2">Adding the Message Length Feature</h3>
+                             <p class="text-gray-600">Based on our EDA findings, we will also add the <strong class="text-[#C06C46]">length of each message</strong> as a separate numerical feature. This gives the model an extra data point to help it distinguish between ham and spam. Combining the TF-IDF vectors with this new feature creates a richer, more informative dataset for our model.</p>
+                        </div>
+                    </div>
+                `,
+          "model-building": `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">🤖 6. Model Building</h2>
+                        <p class="mb-6 text-gray-600">Now that our data is prepared, it's time to choose and train a machine learning model. For a first project, it's best to select a model that is effective, relatively simple to understand, and interpretable.</p>
+                        
+                        <div class="grid md:grid-cols-3 gap-4 text-center">
+                            <div class="p-4 border rounded-lg">
+                                <h4 class="font-semibold">Naive Bayes</h4>
+                                <p class="text-sm text-gray-500">Fast and great for text. A good baseline.</p>
+                            </div>
+                            <div class="p-4 border-2 border-[#C06C46] rounded-lg bg-[#FDFBF8]">
+                                <h4 class="font-semibold text-[#C06C46]">Logistic Regression (Recommended)</h4>
+                                <p class="text-sm text-gray-500">Excellent balance of performance and interpretability. The ideal choice for this project.</p>
+                            </div>
+                            <div class="p-4 border rounded-lg">
+                                <h4 class="font-semibold">Support Vector Machine (SVM)</h4>
+                                <p class="text-sm text-gray-500">Powerful and highly effective, but more complex.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 border-t pt-6">
+                            <h3 class="font-semibold text-lg text-gray-800 mb-2">The Training Process</h3>
+                            <p class="text-gray-600 mb-4">We will train our chosen <strong class="text-[#C06C46]">Logistic Regression</strong> model using the training data we set aside earlier. During this step, the model learns the patterns that differentiate spam from ham by analyzing the TF-IDF features and message lengths.</p>
+                            <h3 class="font-semibold text-lg text-gray-800 mb-2 mt-4">Ensuring Reproducibility</h3>
+                            <p class="text-gray-600">To ensure your results are consistent every time you run your code, you must set a <code class="bg-gray-200 text-sm p-1 rounded">random_state</code>. This fixes the randomness in data splitting and model initialization, which is crucial for debugging and reliable comparisons.</p>
+                        </div>
+                    </div>
+                `,
+          "model-evaluation": `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">📈 7. Model Evaluation</h2>
+                        <p class="mb-6 text-gray-600">After training, we must evaluate how well our model performs on the unseen test data. Due to the class imbalance in our dataset, we cannot rely on accuracy alone. We need a more nuanced set of metrics.</p>
+                        
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="card p-4 metric-card">
+                                <h4 class="font-semibold text-lg tooltip">Accuracy
+                                    <span class="tooltiptext">Overall, how often is the model correct? (Can be misleading in imbalanced datasets)</span>
+                                </h4>
+                                <p class="text-3xl font-bold text-[#C06C46] mt-2">~97%</p>
+                            </div>
+                            <div class="card p-4 metric-card">
+                                <h4 class="font-semibold text-lg tooltip">Precision
+                                    <span class="tooltiptext">Of all messages predicted as SPAM, how many were actually SPAM? (Minimizes false positives)</span>
+                                </h4>
+                                <p class="text-3xl font-bold text-[#C06C46] mt-2">~98%</p>
+                            </div>
+                            <div class="card p-4 metric-card">
+                                <h4 class="font-semibold text-lg tooltip">Recall
+                                     <span class="tooltiptext">Of all actual SPAM messages, how many did the model find? (Minimizes false negatives)</span>
+                                </h4>
+                                <p class="text-3xl font-bold text-[#C06C46] mt-2">~80%</p>
+                            </div>
+                            <div class="card p-4 metric-card">
+                                <h4 class="font-semibold text-lg tooltip">F1-Score
+                                    <span class="tooltiptext">A single score that balances Precision and Recall. Great for imbalanced datasets.</span>
+                                </h4>
+                                <p class="text-3xl font-bold text-[#C06C46] mt-2">~88%</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 border-t pt-6">
+                            <h3 class="font-semibold text-lg text-gray-800 mb-2">The Confusion Matrix</h3>
+                            <p class="text-gray-600">This table gives a detailed breakdown of our model's predictions versus the actual labels. It's the source for all the metrics above and helps us understand exactly where the model is making mistakes (False Positives vs. False Negatives).</p>
+                        </div>
+                    </div>
+                `,
+          "results-interpretation": `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">💡 8. Results Interpretation & Insights</h2>
+                        <p class="mb-6 text-gray-600">The numbers from evaluation are great, but what do they actually mean? This step is about translating our results into actionable insights and understanding what the model has learned.</p>
+                        
+                        <div class="mb-6">
+                            <h3 class="font-semibold text-lg text-gray-800 mb-2">What Did the Model Learn? (Feature Importance)</h3>
+                            <p class="text-gray-600">By examining the model, we can see which words and features had the biggest impact on its decisions. As expected from our EDA, words like <code class="bg-gray-200 text-sm p-1 rounded">free</code>, <code class="bg-gray-200 text-sm p-1 rounded">win</code>, <code class="bg-gray-200 text-sm p-1 rounded">urgent</code>, and <code class="bg-gray-200 text-sm p-1 rounded">call</code> will be strong indicators of spam. This confirms our model is learning the correct patterns.</p>
+                        </div>
+
+                        <div class="border-t pt-6">
+                            <h3 class="font-semibold text-lg text-[#C06C46] mb-2">Actionable Recommendations for Future Work</h3>
+                            <ul class="space-y-3 list-disc list-inside text-gray-600">
+                                <li><strong>Adaptive Learning:</strong> Spammers change their tactics. The model should be periodically retrained with new data to stay effective.</li>
+                                <li><strong>Hybrid Approaches:</strong> Real-world filters use more than just text. Consider adding features from email headers or analyzing links in the future.</li>
+                                <li><strong>Explore Advanced Models:</strong> Once you're comfortable, you can try more complex models like Random Forests or even deep learning to potentially improve performance.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `,
+          deployment: `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">🚀 9. Deployment</h2>
+                        <p class="mb-6 text-gray-600">Deployment means turning your trained model into a usable application. For your project, a "basic deployment" is all that's required. This involves creating a simple web interface where a user can input a message and see the model's prediction.</p>
+                        
+                        <h3 class="font-semibold text-lg text-gray-800 mb-4">Recommended Frameworks for Beginners</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="p-4 border-2 border-[#C06C46] bg-[#FDFBF8] rounded-lg">
+                                <h4 class="font-semibold text-[#C06C46]">Streamlit (Highly Recommended)</h4>
+                                <p class="text-sm text-gray-700">The easiest and fastest way to build a beautiful, interactive web app for your model with just a few lines of Python code.</p>
+                            </div>
+                            <div class="p-4 border rounded-lg">
+                                <h4 class="font-semibold">Flask</h4>
+                                <p class="text-sm text-gray-500">A lightweight and flexible web framework that gives you more control but requires more setup.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 border-t pt-6">
+                            <h3 class="font-semibold text-lg text-gray-800 mb-2">Application Functionality</h3>
+                            <p class="text-gray-600">Your deployed app should have three simple components:</p>
+                             <ol class="list-decimal list-inside space-y-2 mt-4 text-gray-600">
+                                <li>A text box for the user to enter a message.</li>
+                                <li>A "Predict" button to run the model.</li>
+                                <li>A clear display of the result ("This is Spam" or "This is Ham").</li>
+                            </ol>
+                        </div>
+                    </div>
+                `,
+          documentation: `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 10. Documentation and Presentation</h2>
+                        <p class="mb-6 text-gray-600">The final step is to communicate your work clearly and professionally. This is a critical skill in AI and data science. Your submission should consist of two parts.</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-[#F3EFEA] p-4 rounded-lg">
+                                <h3 class="font-semibold text-lg text-[#C06C46] mb-2">1. Final Report (PDF/DOCX)</h3>
+                                <p class="text-gray-700">A detailed document covering every section of this guide, from Problem Definition to Conclusion. It must include links to your code on GitHub and your data source.</p>
+                            </div>
+                            <div class="bg-[#F3EFEA] p-4 rounded-lg">
+                                <h3 class="font-semibold text-lg text-[#C06C46] mb-2">2. Presentation Slides (PPT/PDF)</h3>
+                                <p class="text-gray-700">A concise presentation summarizing your project. It should include a high-level overview of each step, your key results, and a live demonstration of your deployed application.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 border-t pt-6">
+                            <h3 class="font-semibold text-lg text-gray-800 mb-2">Project Submission Checklist</h3>
+                            <ul class="space-y-2 list-inside text-gray-600">
+                                <li class="flex items-center"><span class="mr-2">✅</span>Well-defined problem statement and objective.</li>
+                                <li class="flex items-center"><span class="mr-2">✅</span>Clean, commented Python code in a GitHub repository.</li>
+                                <li class="flex items-center"><span class="mr-2">✅</span>Thorough report detailing your methodology and results.</li>
+                                <li class="flex items-center"><span class="mr-2">✅</span>Professional presentation slides.</li>
+                                <li class="flex items-center"><span class="mr-2">✅</span>A link to your deployed application (even if hosted locally).</li>
+                            </ul>
+                        </div>
+                    </div>
+                `,
+        };
+
+        function renderContent() {
+          mainContentArea.innerHTML = "";
+          sidebarNav.innerHTML = "";
+          mobileSidebarNav.innerHTML = "";
+
+          sectionsData.forEach((section, index) => {
+            const sectionEl = document.createElement("div");
+            sectionEl.id = section.id;
+            sectionEl.className = "main-content mb-8";
+            if (index !== 0) {
+              sectionEl.classList.add("hidden");
+            }
+            sectionEl.innerHTML = contentHTML[section.id];
+            mainContentArea.appendChild(sectionEl);
+
+            const linkHTML = `
+                        <a href="#${section.id}" data-target="${section.id}" class="sidebar-link group flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-md">
+                            <span class="mr-3">${section.icon}</span>
+                            ${section.title}
+                        </a>`;
+            sidebarNav.innerHTML += linkHTML;
+            mobileSidebarNav.innerHTML += linkHTML;
+          });
+
+          document.querySelector(".sidebar-link").classList.add("active");
+        }
+
+        function setActiveLink(targetId) {
+          document.querySelectorAll(".sidebar-link").forEach((link) => {
+            link.classList.remove("active");
+            if (link.dataset.target === targetId) {
+              link.classList.add("active");
+            }
+          });
+        }
+
+        function showSection(targetId) {
+          document.querySelectorAll(".main-content").forEach((section) => {
+            section.classList.add("hidden");
+          });
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) {
+            targetSection.classList.remove("hidden");
+            setActiveLink(targetId);
+
+            if (chartInstances[targetId]) {
+              chartInstances[targetId].destroy();
+              delete chartInstances[targetId];
+            }
+
+            // Re-initialize charts if they exist in the target section
+            initializeCharts(targetId);
+          }
+        }
+
+        function initializeCharts(sectionId) {
+          if (sectionId === "data-acquisition") {
+            const ctx = document
+              .getElementById("classDistributionChart")
+              ?.getContext("2d");
+            if (ctx && !chartInstances["data-acquisition"]) {
+              chartInstances["data-acquisition"] = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                  labels: ["Ham (Legitimate)", "Spam"],
+                  datasets: [
+                    {
+                      label: "Message Distribution",
+                      data: [4825, 747],
+                      backgroundColor: ["#6D9886", "#C06C46"],
+                      borderColor: "#FDFBF8",
+                      borderWidth: 4,
+                    },
+                  ],
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  cutout: "60%",
+                  plugins: {
+                    legend: {
+                      position: "bottom",
+                      labels: { color: "#4A4A4A", font: { size: 14 } },
+                    },
+                    title: {
+                      display: true,
+                      text: "Dataset Class Distribution (5,574 Messages)",
+                      color: "#4A4A4A",
+                      font: { size: 16, weight: "bold" },
+                    },
+                  },
+                },
+              });
+            }
+          }
+          if (sectionId === "eda") {
+            const hamCtx = document
+              .getElementById("hamWordsChart")
+              ?.getContext("2d");
+            const spamCtx = document
+              .getElementById("spamWordsChart")
+              ?.getContext("2d");
+            if (hamCtx && !chartInstances["eda-ham"]) {
+              const commonOptions = {
+                indexAxis: "y",
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: { ticks: { color: "#4A4A4A" } },
+                  y: { ticks: { color: "#4A4A4A" } },
+                },
+              };
+              chartInstances["eda-ham"] = new Chart(hamCtx, {
+                type: "bar",
+                data: {
+                  labels: [
+                    "u",
+                    "2",
+                    "gt",
+                    "lt",
+                    "get",
+                    "go",
+                    "ok",
+                    "know",
+                    "like",
+                    "come",
+                  ],
+                  datasets: [
+                    {
+                      label: "Frequency",
+                      data: [1007, 321, 318, 316, 301, 249, 234, 231, 229, 225],
+                      backgroundColor: "#6D9886",
+                    },
+                  ],
+                },
+                options: commonOptions,
+              });
+            }
+            if (spamCtx && !chartInstances["eda-spam"]) {
+              chartInstances["eda-spam"] = new Chart(spamCtx, {
+                type: "bar",
+                data: {
+                  labels: [
+                    "call",
+                    "free",
+                    "txt",
+                    "ur",
+                    "mobile",
+                    "text",
+                    "stop",
+                    "claim",
+                    "reply",
+                    "prize",
+                  ],
+                  datasets: [
+                    {
+                      label: "Frequency",
+                      data: [347, 216, 151, 144, 114, 106, 105, 98, 98, 82],
+                      backgroundColor: "#C06C46",
+                    },
+                  ],
+                },
+                options: commonOptions,
+              });
+            }
+          }
+        }
+
+        document.body.addEventListener("click", function (e) {
+          if (e.target.closest(".sidebar-link")) {
+            e.preventDefault();
+            const targetId = e.target.closest(".sidebar-link").dataset.target;
+            showSection(targetId);
+
+            // Close mobile menu on link click
+            const mobileMenu = document.getElementById("mobile-menu");
+            if (!mobileMenu.classList.contains("hidden")) {
+              mobileMenu.classList.add("hidden");
+            }
+          }
+        });
+
+        // Mobile menu controls
+        const menuButton = document.getElementById("menu-button");
+        const closeMenuButton = document.getElementById("close-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        menuButton.addEventListener("click", () => {
+          mobileMenu.classList.remove("hidden");
+        });
+
+        closeMenuButton.addEventListener("click", () => {
+          mobileMenu.classList.add("hidden");
+        });
+
+        // Initial render
+        renderContent();
+        // Initial chart load for the first section
+        initializeCharts("data-acquisition");
+      });
+    </script>
+  </body>
+</html>
