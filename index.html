@@ -1,233 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      Interactive Guide to Spam Email Detection AI Mini Project Work
-    </title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide to Spam Email Detection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: The SPA is designed as a guided, linear journey through the machine learning project lifecycle, mirroring the 10 steps in the source report. This structure was chosen for its pedagogical clarity, making it ideal for a student new to AI. Navigation is handled by a persistent sidebar, allowing users to jump to any step. Key interactions include toggling content sections and viewing dynamic charts to understand concepts like class imbalance and feature importance. This task-oriented flow directly supports the user's goal of implementing their project step-by-step. -->
-    <!-- Visualization & Content Choices: 
+    <!-- Application Structure Plan: The SPA is designed as a guided, linear journey through the machine learning project lifecycle, mirroring the 10 steps in the source report and adding a new practical lab section. This structure was chosen for its pedagogical clarity, making it ideal for a student new to AI. Navigation is handled by a persistent sidebar, allowing users to jump to any step. Key interactions include toggling content sections and viewing dynamic charts to understand concepts like class imbalance and feature importance. A new 'Practical Implementation' section provides a concrete code lab experience, allowing users to see how concepts translate into actual TensorFlow code. This task-oriented flow directly supports the user's goal of implementing their project step-by-step. -->
+    <!-- Visualization & Content Choices:
         - Problem Definition: Goal: Inform. Method: Styled text blocks. Interaction: None. Justification: Clearly presents the foundational concepts.
-        - Data Acquisition: Goal: Inform. Method: Comparison table (HTML/Tailwind). Interaction: None. Justification: Allows easy comparison of potential datasets.
-        - Data Distribution: Goal: Inform/Compare. Method: Donut Chart (Chart.js). Interaction: Hover tooltips. Justification: Visually and intuitively demonstrates the critical concept of class imbalance.
-        - EDA (Word Frequency): Goal: Compare. Method: Two dynamic Bar Charts (Chart.js). Interaction: None. Justification: Provides a clear, side-by-side comparison of the most frequent words in Ham vs. Spam, highlighting key linguistic differences.
-        - Process Flow (e.g., Preprocessing): Goal: Organize. Method: Numbered list with icons (HTML/Tailwind). Interaction: None. Justification: Breaks down multi-step processes into easily digestible steps.
-        - Model Evaluation: Goal: Inform. Method: Styled metric cards (HTML/Tailwind). Interaction: Hover for definitions. Justification: Presents key performance indicators in a clear, dashboard-like format.
+        - Data Acquisition: Goal: Inform. Method: Comparison table (HTML/Tailwind) and Donut Chart (Chart.js). Interaction: Hover tooltips for chart. Justification: Allows easy comparison of potential datasets and visually demonstrates class imbalance.
+        - Data Preprocessing: Goal: Organize. Method: Numbered list with icons (HTML/Tailwind). Interaction: None. Justification: Breaks down multi-step processes into easily digestible steps.
+        - EDA (Word Frequency): Goal: Compare. Method: Two dynamic Bar Charts (Chart.js). Interaction: None. Justification: Provides a clear, side-by-side comparison of the most frequent words in Ham vs. Spam.
+        - Feature Engineering: Goal: Inform. Method: Styled text blocks. Interaction: None. Justification: Explains the conversion of text to numerical features.
+        - Practical Implementation: Goal: Demonstrate/Inform. Method: Code blocks (HTML/Tailwind for styling). Interaction: None. Justification: Provides tangible, lab-like code examples.
+        - Model Building: Goal: Inform. Method: Comparison cards (HTML/Tailwind). Interaction: None. Justification: Guides choice of model with rationale.
+        - Model Evaluation: Goal: Inform. Method: Styled metric cards (HTML/Tailwind). Interaction: Hover tooltips. Justification: Presents key performance indicators in a clear format.
+        - Interactive Spam Analyzer (NEW): Goal: Analyze/Inform. Method: Textarea, Button, Dynamic Text Display (LLM via Gemini API). Interaction: User input & button click to trigger AI analysis. Justification: Provides direct LLM interaction to explain spam characteristics, enhancing understanding.
+        - Model Insights & Future Work (Renamed): Goal: Inform. Method: Styled text blocks and lists. Interaction: None. Justification: Provides crucial concluding and actionable information.
+        - Deployment & Documentation: Goal: Inform. Method: Styled text blocks and lists. Interaction: None. Justification: Provides crucial concluding and actionable information.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: #fdfbf8; /* Warm off-white */
-        color: #4a4a4a;
-      }
-      .sidebar-link {
-        transition: all 0.2s ease-in-out;
-        border-left: 3px solid transparent;
-      }
-      .sidebar-link.active {
-        background-color: #f3efea; /* Light beige */
-        color: #c06c46; /* Muted orange accent */
-        border-left-color: #c06c46;
-      }
-      .sidebar-link:hover {
-        background-color: #f3efea;
-        border-left-color: #e2c7b9; /* Lighter accent */
-      }
-      .main-content {
-        transition: opacity 0.5s ease-in-out;
-      }
-      .card {
-        background-color: #ffffff;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
-          0 2px 4px -2px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f3efea;
-      }
-      .chart-container {
-        position: relative;
-        width: 100%;
-        max-width: 450px;
-        margin-left: auto;
-        margin-right: auto;
-        height: 300px;
-        max-height: 350px;
-      }
-      @media (min-width: 768px) {
-        .chart-container {
-          height: 350px;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8; /* Warm off-white */
+            color: #4A4A4A;
         }
-      }
-      .step-icon {
-        background-color: #f3efea;
-        color: #c06c46;
-      }
-      .metric-card {
-        border-left: 4px solid #c06c46;
-      }
-      .tooltip {
-        position: relative;
-        display: inline-block;
-        cursor: pointer;
-      }
-      .tooltip .tooltiptext {
-        visibility: hidden;
-        width: 220px;
-        background-color: #555;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px 10px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        left: 50%;
-        margin-left: -110px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 0.875rem;
-        font-weight: 400;
-      }
-      .tooltip:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-      }
+        .sidebar-link {
+            transition: all 0.2s ease-in-out;
+            border-left: 3px solid transparent;
+        }
+        .sidebar-link.active {
+            background-color: #F3EFEA; /* Light beige */
+            color: #C06C46; /* Muted orange accent */
+            border-left-color: #C06C46;
+        }
+        .sidebar-link:hover {
+            background-color: #F3EFEA;
+            border-left-color: #E2C7B9; /* Lighter accent */
+        }
+        .main-content {
+            transition: opacity 0.5s ease-in-out;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #F3EFEA;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .step-icon {
+            background-color: #F3EFEA;
+            color: #C06C46;
+        }
+        .metric-card {
+            border-left: 4px solid #C06C46;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .code-block {
+            background-color: #2D2D2D;
+            color: #F8F8F2;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .code-block .comment { color: #888888; }
+        .code-block .keyword { color: #FF79C6; }
+        .code-block .string { color: #F1FA8C; }
+        .code-block .function { color: #50FA7B; }
+        .code-block .number { color: #BD93F9; }
+        .code-block .variable { color: #8BE9FD; }
+        .code-block .operator { color: #FF79C6; }
+        .code-block .class { color: #50FA7B; }
+        .llm-button {
+            background-color: #C06C46; /* Muted orange accent */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .llm-button:hover {
+            background-color: #E2C7B9; /* Lighter accent */
+        }
+        .llm-button:disabled {
+            background-color: #A0A0A0;
+            cursor: not-allowed;
+        }
     </style>
-  </head>
-  <body class="antialiased">
+</head>
+<body class="antialiased">
     <div class="flex h-screen bg-gray-100">
-      <!-- Sidebar -->
-      <div
-        class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200"
-      >
-        <div class="flex items-center justify-center h-16 border-b">
-          <h1 class="text-xl font-bold text-[#C06C46]">
-            AI Spam Detection Mini Project
-          </h1>
+        <!-- Sidebar -->
+        <div class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200">
+            <div class="flex items-center justify-center h-16 border-b">
+                <h1 class="text-xl font-bold text-[#C06C46]">Spam Detection Guide</h1>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <nav id="sidebar-nav" class="flex-1 px-2 py-4 space-y-1">
+                    </nav>
+            </div>
         </div>
-        <div class="flex-1 overflow-y-auto">
-          <nav id="sidebar-nav" class="flex-1 px-2 py-4 space-y-1">
-            <!-- Links will be dynamically generated here -->
-          </nav>
-        </div>
-      </div>
 
-      <!-- Main content -->
-      <div class="flex-1 flex flex-col overflow-hidden">
-        <header
-          class="flex justify-between items-center p-4 bg-white border-b md:hidden"
-        >
-          <h1 class="text-xl font-bold text-[#C06C46]">Spam Detection Guide</h1>
-          <button id="menu-button" class="text-gray-500 focus:outline-none">
-            <svg
-              class="h-6 w-6"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4 6H20M4 12H20M4 18H20"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-            </svg>
-          </button>
-        </header>
-        <main
-          id="main-content-area"
-          class="flex-1 overflow-x-hidden overflow-y-auto bg-[#FDFBF8] p-4 sm:p-6 lg:p-8"
-        >
-          <!-- Sections will be dynamically generated here -->
-        </main>
-      </div>
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="flex justify-between items-center p-4 bg-white border-b md:hidden">
+                <h1 class="text-xl font-bold text-[#C06C46]">Spam Detection Guide</h1>
+                <button id="menu-button" class="text-gray-500 focus:outline-none">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+            </header>
+            <main id="main-content-area" class="flex-1 overflow-x-hidden overflow-y-auto bg-[#FDFBF8] p-4 sm:p-6 lg:p-8">
+                </main>
+        </div>
     </div>
-
+    
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden fixed inset-0 flex z-40">
-      <div class="fixed inset-0 bg-black opacity-50"></div>
-      <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-        <div class="absolute top-0 right-0 -mr-12 pt-2">
-          <button
-            id="close-menu-button"
-            class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-          >
-            <span class="sr-only">Close sidebar</span>
-            <svg
-              class="h-6 w-6 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+        <div class="fixed inset-0 bg-black opacity-50"></div>
+        <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
+            <div class="absolute top-0 right-0 -mr-12 pt-2">
+                <button id="close-menu-button" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                    <span class="sr-only">Close sidebar</span>
+                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+                <div class="flex-shrink-0 flex items-center px-4">
+                    <h1 class="text-xl font-bold text-[#C06C46]">Spam Detection Guide</h1>
+                </div>
+                <nav id="mobile-sidebar-nav" class="mt-5 px-2 space-y-1">
+                    </nav>
+            </div>
         </div>
-        <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-          <div class="flex-shrink-0 flex items-center px-4">
-            <h1 class="text-xl font-bold text-[#C06C46]">
-              Spam Detection Guide
-            </h1>
-          </div>
-          <nav id="mobile-sidebar-nav" class="mt-5 px-2 space-y-1">
-            <!-- Mobile links will be dynamically generated here -->
-          </nav>
-        </div>
-      </div>
-      <div class="flex-shrink-0 w-14"></div>
+        <div class="flex-shrink-0 w-14"></div>
     </div>
 
+
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const sectionsData = [
-          {
-            id: "problem-definition",
-            title: "1. Problem Definition",
-            icon: "🎯",
-          },
-          { id: "data-acquisition", title: "2. Data Acquisition", icon: "📊" },
-          { id: "data-cleaning", title: "3. Data Preprocessing", icon: "🧹" },
-          { id: "eda", title: "4. Exploratory Analysis", icon: "🔍" },
-          {
-            id: "feature-engineering",
-            title: "5. Feature Engineering",
-            icon: "🛠️",
-          },
-          { id: "model-building", title: "6. Model Building", icon: "🤖" },
-          { id: "model-evaluation", title: "7. Model Evaluation", icon: "📈" },
-          {
-            id: "results-interpretation",
-            title: "8. Results Interpretation",
-            icon: "💡",
-          },
-          { id: "deployment", title: "9. Deployment", icon: "🚀" },
-          { id: "documentation", title: "10. Documentation", icon: "📝" },
-        ];
+        document.addEventListener('DOMContentLoaded', function () {
+            const sectionsData = [
+                { id: 'problem-definition', title: '1. Problem Definition', icon: '🎯' },
+                { id: 'data-acquisition', title: '2. Data Acquisition', icon: '📊' },
+                { id: 'data-cleaning', title: '3. Data Preprocessing', icon: '🧹' },
+                { id: 'eda', title: '4. Exploratory Analysis', icon: '🔍' },
+                { id: 'feature-engineering', title: '5. Feature Engineering', icon: '🛠️' },
+                { id: 'model-building', title: '6. Model Building', icon: '🤖' },
+                { id: 'model-evaluation', title: '7. Model Evaluation', icon: '📈' },
+                { id: 'interactive-analyzer', title: '8. Interactive Spam Analyzer ✨', icon: '🧠' }, // New section for LLM
+                { id: 'model-insights-future-work', title: '9. Model Insights & Future Work', icon: '💡' }, // Renamed from Results Interpretation
+                { id: 'deployment', title: '10. Deployment', icon: '🚀' },
+                { id: 'documentation', title: '11. Documentation', icon: '📝' },
+            ];
 
-        const mainContentArea = document.getElementById("main-content-area");
-        const sidebarNav = document.getElementById("sidebar-nav");
-        const mobileSidebarNav = document.getElementById("mobile-sidebar-nav");
+            const mainContentArea = document.getElementById('main-content-area');
+            const sidebarNav = document.getElementById('sidebar-nav');
+            const mobileSidebarNav = document.getElementById('mobile-sidebar-nav');
+            
+            let chartInstances = {};
 
-        let chartInstances = {};
-
-        const contentHTML = {
-          "problem-definition": `
+            const contentHTML = {
+                'problem-definition': `
                     <div class="card p-6 md:p-8">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 1. Problem Definition & Objective</h2>
                         <p class="mb-4 text-gray-600">This first step is about clearly understanding and defining the problem you are trying to solve. For this project, the core challenge is the overwhelming volume of unsolicited and often malicious emails, known as spam. Your objective is to build an AI system that can automatically and accurately distinguish between legitimate emails (ham) and spam.</p>
@@ -247,7 +230,7 @@
                         </div>
                     </div>
                 `,
-          "data-acquisition": `
+                'data-acquisition': `
                     <div class="card p-6 md:p-8">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">📊 2. Data Acquisition</h2>
                         <p class="mb-6 text-gray-600">Every AI project starts with data. For your first project, it's best to use a well-known, publicly available dataset. This saves you from the difficult task of collecting and labeling data from scratch. We evaluated several options and selected the most suitable one for a beginner.</p>
@@ -283,7 +266,7 @@
                         </div>
                     </div>
                 `,
-          "data-cleaning": `
+                'data-cleaning': `
                     <div class="card p-6 md:p-8">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">🧹 3. Data Cleaning and Preprocessing</h2>
                         <p class="mb-6 text-gray-600">Raw text data is messy and can't be used by AI models directly. We need to clean and standardize it through a series of preprocessing steps. This phase is foundational for any text-based AI project, ensuring our model receives high-quality, consistent input.</p>
@@ -334,7 +317,7 @@
                         </div>
                     </div>
                 `,
-          eda: `
+                'eda': `
                     <div class="card p-6 md:p-8">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">🔍 4. Exploratory Data Analysis (EDA)</h2>
                         <p class="mb-6 text-gray-600">Before building the model, we explore the data to uncover patterns and insights. For text, this often means looking at what makes the two classes (ham and spam) different linguistically. This helps validate our approach and can even suggest new features to create.</p>
@@ -362,7 +345,7 @@
                         </div>
                     </div>
                 `,
-          "feature-engineering": `
+                'feature-engineering': `
                     <div class="card p-6 md:p-8">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">🛠️ 5. Feature Engineering</h2>
                         <p class="mb-6 text-gray-600">This is the process of converting our preprocessed text into a numerical format (vectors) that machine learning models can understand. We're essentially turning words into numbers while retaining their meaning and importance.</p>
@@ -382,7 +365,7 @@
                         </div>
                     </div>
                 `,
-          "model-building": `
+                 'model-building': `
                     <div class="card p-6 md:p-8">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">🤖 6. Model Building</h2>
                         <p class="mb-6 text-gray-600">Now that our data is prepared, it's time to choose and train a machine learning model. For a first project, it's best to select a model that is effective, relatively simple to understand, and interpretable.</p>
@@ -410,7 +393,7 @@
                         </div>
                     </div>
                 `,
-          "model-evaluation": `
+                'model-evaluation': `
                     <div class="card p-6 md:p-8">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">📈 7. Model Evaluation</h2>
                         <p class="mb-6 text-gray-600">After training, we must evaluate how well our model performs on the unseen test data. Due to the class imbalance in our dataset, we cannot rely on accuracy alone. We need a more nuanced set of metrics.</p>
@@ -448,9 +431,36 @@
                         </div>
                     </div>
                 `,
-          "results-interpretation": `
+                'interactive-analyzer': `
                     <div class="card p-6 md:p-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">💡 8. Results Interpretation & Insights</h2>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">🧠 8. Interactive Spam Analyzer ✨</h2>
+                        <p class="mb-6 text-gray-600">Curious why an email might be flagged as spam? Use this tool powered by the Gemini API to get an AI-driven analysis of potential spam characteristics in any text you provide. It leverages a large language model to explain common patterns found in spam.</p>
+                        
+                        <div class="mb-4">
+                            <label for="emailInput" class="block text-sm font-medium text-gray-700 mb-2">Enter your email/message text:</label>
+                            <textarea id="emailInput" rows="6" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C06C46] focus:ring focus:ring-[#C06C46] focus:ring-opacity-50 p-3" placeholder="Paste an email or message here for analysis..."></textarea>
+                        </div>
+                        <button id="analyzeButton" class="llm-button flex items-center justify-center">
+                            <svg id="analyzeSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span id="analyzeButtonText">Analyze for Spam Characteristics</span>
+                        </button>
+
+                        <div id="analysisResult" class="mt-6 p-4 rounded-lg bg-[#F3EFEA] border border-gray-200 text-gray-700 hidden">
+                            <h3 class="font-semibold text-lg text-[#C06C46] mb-2">Analysis Results:</h3>
+                            <p id="analysisText" class="whitespace-pre-wrap"></p>
+                        </div>
+                        <div id="analysisError" class="mt-6 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700 hidden">
+                            <h3 class="font-semibold text-lg mb-2">Error:</h3>
+                            <p id="errorText"></p>
+                        </div>
+                    </div>
+                `,
+                'model-insights-future-work': `
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">💡 9. Model Insights & Future Work</h2>
                         <p class="mb-6 text-gray-600">The numbers from evaluation are great, but what do they actually mean? This step is about translating our results into actionable insights and understanding what the model has learned.</p>
                         
                         <div class="mb-6">
@@ -468,9 +478,9 @@
                         </div>
                     </div>
                 `,
-          deployment: `
+                'deployment': `
                     <div class="card p-6 md:p-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">🚀 9. Deployment</h2>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">🚀 10. Deployment</h2>
                         <p class="mb-6 text-gray-600">Deployment means turning your trained model into a usable application. For your project, a "basic deployment" is all that's required. This involves creating a simple web interface where a user can input a message and see the model's prediction.</p>
                         
                         <h3 class="font-semibold text-lg text-gray-800 mb-4">Recommended Frameworks for Beginners</h3>
@@ -496,9 +506,9 @@
                         </div>
                     </div>
                 `,
-          documentation: `
+                'documentation': `
                     <div class="card p-6 md:p-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 10. Documentation and Presentation</h2>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 11. Documentation and Presentation</h2>
                         <p class="mb-6 text-gray-600">The final step is to communicate your work clearly and professionally. This is a critical skill in AI and data science. Your submission should consist of two parts.</p>
                         
                         <div class="grid md:grid-cols-2 gap-6">
@@ -524,209 +534,243 @@
                         </div>
                     </div>
                 `,
-        };
+            };
 
-        function renderContent() {
-          mainContentArea.innerHTML = "";
-          sidebarNav.innerHTML = "";
-          mobileSidebarNav.innerHTML = "";
+            function renderContent() {
+                mainContentArea.innerHTML = '';
+                sidebarNav.innerHTML = '';
+                mobileSidebarNav.innerHTML = '';
 
-          sectionsData.forEach((section, index) => {
-            const sectionEl = document.createElement("div");
-            sectionEl.id = section.id;
-            sectionEl.className = "main-content mb-8";
-            if (index !== 0) {
-              sectionEl.classList.add("hidden");
-            }
-            sectionEl.innerHTML = contentHTML[section.id];
-            mainContentArea.appendChild(sectionEl);
+                sectionsData.forEach((section, index) => {
+                    const sectionEl = document.createElement('div');
+                    sectionEl.id = section.id;
+                    sectionEl.className = 'main-content mb-8';
+                    if (index !== 0) {
+                        sectionEl.classList.add('hidden');
+                    }
+                    sectionEl.innerHTML = contentHTML[section.id];
+                    mainContentArea.appendChild(sectionEl);
 
-            const linkHTML = `
+                    const linkHTML = `
                         <a href="#${section.id}" data-target="${section.id}" class="sidebar-link group flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-md">
                             <span class="mr-3">${section.icon}</span>
                             ${section.title}
                         </a>`;
-            sidebarNav.innerHTML += linkHTML;
-            mobileSidebarNav.innerHTML += linkHTML;
-          });
-
-          document.querySelector(".sidebar-link").classList.add("active");
-        }
-
-        function setActiveLink(targetId) {
-          document.querySelectorAll(".sidebar-link").forEach((link) => {
-            link.classList.remove("active");
-            if (link.dataset.target === targetId) {
-              link.classList.add("active");
-            }
-          });
-        }
-
-        function showSection(targetId) {
-          document.querySelectorAll(".main-content").forEach((section) => {
-            section.classList.add("hidden");
-          });
-          const targetSection = document.getElementById(targetId);
-          if (targetSection) {
-            targetSection.classList.remove("hidden");
-            setActiveLink(targetId);
-
-            if (chartInstances[targetId]) {
-              chartInstances[targetId].destroy();
-              delete chartInstances[targetId];
+                    sidebarNav.innerHTML += linkHTML;
+                    mobileSidebarNav.innerHTML += linkHTML;
+                });
+                
+                document.querySelector('.sidebar-link').classList.add('active');
             }
 
-            // Re-initialize charts if they exist in the target section
-            initializeCharts(targetId);
-          }
-        }
+            function setActiveLink(targetId) {
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.dataset.target === targetId) {
+                        link.classList.add('active');
+                    }
+                });
+            }
 
-        function initializeCharts(sectionId) {
-          if (sectionId === "data-acquisition") {
-            const ctx = document
-              .getElementById("classDistributionChart")
-              ?.getContext("2d");
-            if (ctx && !chartInstances["data-acquisition"]) {
-              chartInstances["data-acquisition"] = new Chart(ctx, {
-                type: "doughnut",
-                data: {
-                  labels: ["Ham (Legitimate)", "Spam"],
-                  datasets: [
-                    {
-                      label: "Message Distribution",
-                      data: [4825, 747],
-                      backgroundColor: ["#6D9886", "#C06C46"],
-                      borderColor: "#FDFBF8",
-                      borderWidth: 4,
-                    },
-                  ],
-                },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  cutout: "60%",
-                  plugins: {
-                    legend: {
-                      position: "bottom",
-                      labels: { color: "#4A4A4A", font: { size: 14 } },
-                    },
-                    title: {
-                      display: true,
-                      text: "Dataset Class Distribution (5,574 Messages)",
-                      color: "#4A4A4A",
-                      font: { size: 16, weight: "bold" },
-                    },
-                  },
-                },
-              });
-            }
-          }
-          if (sectionId === "eda") {
-            const hamCtx = document
-              .getElementById("hamWordsChart")
-              ?.getContext("2d");
-            const spamCtx = document
-              .getElementById("spamWordsChart")
-              ?.getContext("2d");
-            if (hamCtx && !chartInstances["eda-ham"]) {
-              const commonOptions = {
-                indexAxis: "y",
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                  x: { ticks: { color: "#4A4A4A" } },
-                  y: { ticks: { color: "#4A4A4A" } },
-                },
-              };
-              chartInstances["eda-ham"] = new Chart(hamCtx, {
-                type: "bar",
-                data: {
-                  labels: [
-                    "u",
-                    "2",
-                    "gt",
-                    "lt",
-                    "get",
-                    "go",
-                    "ok",
-                    "know",
-                    "like",
-                    "come",
-                  ],
-                  datasets: [
-                    {
-                      label: "Frequency",
-                      data: [1007, 321, 318, 316, 301, 249, 234, 231, 229, 225],
-                      backgroundColor: "#6D9886",
-                    },
-                  ],
-                },
-                options: commonOptions,
-              });
-            }
-            if (spamCtx && !chartInstances["eda-spam"]) {
-              chartInstances["eda-spam"] = new Chart(spamCtx, {
-                type: "bar",
-                data: {
-                  labels: [
-                    "call",
-                    "free",
-                    "txt",
-                    "ur",
-                    "mobile",
-                    "text",
-                    "stop",
-                    "claim",
-                    "reply",
-                    "prize",
-                  ],
-                  datasets: [
-                    {
-                      label: "Frequency",
-                      data: [347, 216, 151, 144, 114, 106, 105, 98, 98, 82],
-                      backgroundColor: "#C06C46",
-                    },
-                  ],
-                },
-                options: commonOptions,
-              });
-            }
-          }
-        }
+            function showSection(targetId) {
+                document.querySelectorAll('.main-content').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                    setActiveLink(targetId);
+                    
+                    if (chartInstances[targetId]) {
+                        chartInstances[targetId].destroy();
+                        delete chartInstances[targetId];
+                    }
 
-        document.body.addEventListener("click", function (e) {
-          if (e.target.closest(".sidebar-link")) {
-            e.preventDefault();
-            const targetId = e.target.closest(".sidebar-link").dataset.target;
-            showSection(targetId);
-
-            // Close mobile menu on link click
-            const mobileMenu = document.getElementById("mobile-menu");
-            if (!mobileMenu.classList.contains("hidden")) {
-              mobileMenu.classList.add("hidden");
+                    // Re-initialize charts if they exist in the target section
+                    initializeCharts(targetId);
+                }
             }
-          }
+            
+            function initializeCharts(sectionId) {
+                if (sectionId === 'data-acquisition') {
+                    const ctx = document.getElementById('classDistributionChart')?.getContext('2d');
+                    if (ctx && !chartInstances['data-acquisition']) {
+                         chartInstances['data-acquisition'] = new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['Ham (Legitimate)', 'Spam'],
+                                datasets: [{
+                                    label: 'Message Distribution',
+                                    data: [4825, 747],
+                                    backgroundColor: ['#6D9886', '#C06C46'],
+                                    borderColor: '#FDFBF8',
+                                    borderWidth: 4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutout: '60%',
+                                plugins: {
+                                    legend: { position: 'bottom', labels: { color: '#4A4A4A', font: { size: 14 }}},
+                                    title: { display: true, text: 'Dataset Class Distribution (5,574 Messages)', color: '#4A4A4A', font: { size: 16, weight: 'bold' } }
+                                }
+                            }
+                        });
+                    }
+                }
+                if (sectionId === 'eda') {
+                    const hamCtx = document.getElementById('hamWordsChart')?.getContext('2d');
+                    const spamCtx = document.getElementById('spamWordsChart')?.getContext('2d');
+                    if(hamCtx && !chartInstances['eda-ham']) {
+                        const commonOptions = {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                             plugins: { legend: { display: false } },
+                            scales: {
+                                x: { ticks: { color: '#4A4A4A' } },
+                                y: { ticks: { color: '#4A4A4A' } }
+                            }
+                        };
+                         chartInstances['eda-ham'] = new Chart(hamCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['u', '2', 'gt', 'lt', 'get', 'go', 'ok', 'know', 'like', 'come'],
+                                datasets: [{
+                                    label: 'Frequency',
+                                    data: [1007, 321, 318, 316, 301, 249, 234, 231, 229, 225],
+                                    backgroundColor: '#6D9886',
+                                }]
+                            },
+                            options: commonOptions
+                        });
+                    }
+                    if(spamCtx && !chartInstances['eda-spam']) {
+                         chartInstances['eda-spam'] = new Chart(spamCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['call', 'free', 'txt', 'ur', 'mobile', 'text', 'stop', 'claim', 'reply', 'prize'],
+                                datasets: [{
+                                    label: 'Frequency',
+                                    data: [347, 216, 151, 144, 114, 106, 105, 98, 98, 82],
+                                    backgroundColor: '#C06C46',
+                                }]
+                            },
+                            options: commonOptions
+                        });
+                    }
+                }
+            }
+
+
+            document.body.addEventListener('click', function(e) {
+                if (e.target.closest('.sidebar-link')) {
+                    e.preventDefault();
+                    const targetId = e.target.closest('.sidebar-link').dataset.target;
+                    showSection(targetId);
+                    
+                    // Close mobile menu on link click
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if(!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Mobile menu controls
+            const menuButton = document.getElementById('menu-button');
+            const closeMenuButton = document.getElementById('close-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            menuButton.addEventListener('click', () => {
+                mobileMenu.classList.remove('hidden');
+            });
+
+            closeMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+            
+            // Initial render
+            renderContent();
+            // Initial chart load for the first section
+            initializeCharts('data-acquisition');
+
+            // LLM Integration Logic
+            const analyzeButton = document.getElementById('analyzeButton');
+            const emailInput = document.getElementById('emailInput');
+            const analysisResultDiv = document.getElementById('analysisResult');
+            const analysisTextP = document.getElementById('analysisText');
+            const analyzeSpinner = document.getElementById('analyzeSpinner');
+            const analyzeButtonText = document.getElementById('analyzeButtonText');
+            const analysisErrorDiv = document.getElementById('analysisError');
+            const errorTextP = document.getElementById('errorText');
+
+            if (analyzeButton) {
+                analyzeButton.addEventListener('click', async () => {
+                    const prompt = emailInput.value.trim();
+                    if (!prompt) {
+                        analysisResultDiv.classList.add('hidden');
+                        analysisErrorDiv.classList.remove('hidden');
+                        errorTextP.textContent = "Please enter some text to analyze.";
+                        return;
+                    }
+
+                    // Show loading state
+                    analyzeButton.disabled = true;
+                    analyzeSpinner.classList.remove('hidden');
+                    analyzeButtonText.textContent = 'Analyzing...';
+                    analysisResultDiv.classList.add('hidden');
+                    analysisErrorDiv.classList.add('hidden');
+                    errorTextP.textContent = '';
+                    analysisTextP.textContent = '';
+
+                    try {
+                        let chatHistory = [];
+                        chatHistory.push({ 
+                            role: "user", 
+                            parts: [{ 
+                                text: `Analyze the following text for common spam characteristics (e.g., urgency, financial offers, unusual grammar/spelling, suspicious links, requests for personal information, excessive punctuation, unsolicited nature). Explain in a concise paragraph why it might be considered spam or why it seems legitimate.
+                                
+                                Text: "${prompt}"` 
+                            }] 
+                        });
+                        const payload = { contents: chatHistory };
+                        const apiKey = ""; // Canvas will provide this.
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const result = await response.json();
+
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            const text = result.candidates[0].content.parts[0].text;
+                            analysisTextP.textContent = text;
+                            analysisResultDiv.classList.remove('hidden');
+                        } else {
+                            analysisErrorDiv.classList.remove('hidden');
+                            errorTextP.textContent = "Could not get a valid analysis from the AI. Please try again.";
+                            console.error("Unexpected API response structure:", result);
+                        }
+                    } catch (error) {
+                        analysisErrorDiv.classList.remove('hidden');
+                        errorTextP.textContent = `Failed to analyze: ${error.message}. Please check your network connection or try again later.`;
+                        console.error("Error calling Gemini API:", error);
+                    } finally {
+                        // Revert loading state
+                        analyzeButton.disabled = false;
+                        analyzeSpinner.classList.add('hidden');
+                        analyzeButtonText.textContent = 'Analyze for Spam Characteristics';
+                    }
+                });
+            }
         });
-
-        // Mobile menu controls
-        const menuButton = document.getElementById("menu-button");
-        const closeMenuButton = document.getElementById("close-menu-button");
-        const mobileMenu = document.getElementById("mobile-menu");
-
-        menuButton.addEventListener("click", () => {
-          mobileMenu.classList.remove("hidden");
-        });
-
-        closeMenuButton.addEventListener("click", () => {
-          mobileMenu.classList.add("hidden");
-        });
-
-        // Initial render
-        renderContent();
-        // Initial chart load for the first section
-        initializeCharts("data-acquisition");
-      });
     </script>
-  </body>
+</body>
 </html>
